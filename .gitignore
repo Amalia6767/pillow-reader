@@ -1,0 +1,16 @@
+# Local/generated files
+.DS_Store
+Thumbs.db
+node_modules/
+dist/
+build/
+.qa/
+*.log
+__pycache__/
+# Local credentials and hosting metadata
+.env
+.env.*
+!.env.example
+.openai/
+.codex/
+.agents/

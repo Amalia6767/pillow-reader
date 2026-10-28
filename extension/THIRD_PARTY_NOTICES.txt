@@ -1,0 +1,8 @@
+MediaPipe Tasks Vision 0.10.22-rc.20250304 and Face Landmarker model
+Copyright Google LLC. Licensed under Apache License 2.0.
+https://github.com/google-ai-edge/mediapipe
+https://www.apache.org/licenses/LICENSE-2.0
+Model source: https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+Library source: https://www.npmjs.com/package/@mediapipe/tasks-vision
+Library and model are bundled locally. The application does not upload camera images, facial features or book text. No analytics are used.
+Original demonstration text written for this prototype.

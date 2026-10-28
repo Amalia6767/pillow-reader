@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "枕边翻页 · 微信读书免手助手",
+  "version": "0.1.1",
+  "description": "在电脑微信读书网页版，用有意闭眼或张嘴翻页。摄像头画面仅在本机处理。",
+  "permissions": [
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://weread.qq.com/*"
+  ],
+  "action": {
+    "default_title": "打开枕边翻页控制窗"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

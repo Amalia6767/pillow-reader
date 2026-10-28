@@ -1,0 +1,12 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs';
+const source=fs.readFileSync(new URL('../extension/background.js',import.meta.url),'utf8');
+function harness({direction=1,changed=true,found=true,url='https://weread.qq.com/web/reader/test'}={}){
+ let receive,clicked=0;const content={innerHTML:'page 1'};const button={disabled:false,getAttribute:()=>null,getBoundingClientRect:()=>({width:80,height:30}),textContent:'下一页',click(){clicked++;if(changed)content.innerHTML='page 2';}};
+ const context=vm.createContext({location:new URL(url),getComputedStyle:()=>({display:'block',visibility:'visible'}),setTimeout:fn=>{fn();},document:{querySelector:()=>content,querySelectorAll:s=>s==='.renderTargetPageInfo'?[]:found?[button]:[]},chrome:{action:{onClicked:{addListener(){}}},runtime:{id:'test',getURL:p=>'chrome-extension://test/'+p,onMessage:{addListener(f){receive=f}}},tabs:{get:async()=>({url})},scripting:{executeScript:async({func,args})=>[{result:await func(...args)}]}}});
+ vm.runInContext(source,context);return {context,clicks:()=>clicked,message:msg=>new Promise(r=>receive(msg,{id:'test',url:'chrome-extension://test/index.html'},r))};
+}
+test('DOM change confirms a page turn',async()=>{const h=harness();const r=await h.message({type:'turn',tabId:42,direction:1});assert.equal(r.ok,true);assert.equal(r.confirmed,true);assert.equal(h.clicks(),1);});
+test('canvas-only redraw is accepted without falsely claiming confirmed page change',async()=>{const h=harness({changed:false});const r=await h.message({type:'turn',tabId:42,direction:1});assert.equal(r.ok,true);assert.equal(r.confirmed,false);assert.equal(h.clicks(),1);});
+test('missing control fails without clicking unrelated elements',async()=>{const h=harness({found:false});assert.equal((await h.message({type:'turn',tabId:42,direction:1})).ok,false);assert.equal(h.clicks(),0);});
+test('leaving reader URL refuses injection',async()=>{const h=harness({url:'https://weread.qq.com/'});assert.equal((await h.message({type:'turn',tabId:42,direction:1})).ok,false);assert.equal(h.clicks(),0);});
+test('invalid directions and non-integer target rejected',async()=>{const h=harness();assert.equal((await h.message({type:'turn',tabId:42,direction:9})).ok,false);assert.equal((await h.message({type:'turn',tabId:'42',direction:1})).ok,false);assert.equal(h.clicks(),0);});
